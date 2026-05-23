@@ -114,11 +114,15 @@ def submit_solution(uid, expr):
   :return: str, server response message or an error message.
   """
   try:
+    if len(expr) > 4096:
+      raise Exception("The written code is too long.")
     response = __interface(query={"operation": "verify", "uid": uid})
     if response.get("message") != "VERIFIED":
       return response.get("message", "Verification failed with unknown error.")
     result = __exec(expr)
     b64_gz_json = __as_gzjson_b64(result)
+    if len(b64_gz_json) > 4096:
+      raise Exception("The output is too long.")
     response = __interface(query={
       "operation": "submit",
       "uid": uid,
